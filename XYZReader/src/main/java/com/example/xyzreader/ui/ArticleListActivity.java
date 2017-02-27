@@ -6,24 +6,37 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.Loader;
+import android.content.res.Configuration;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.graphics.Palette;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.support.v7.widget.Toolbar;
 import android.text.format.DateUtils;
-import android.util.TypedValue;
-import android.view.MenuItem;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.android.volley.toolbox.NetworkImageView;
 import com.example.xyzreader.R;
 import com.example.xyzreader.data.ArticleLoader;
 import com.example.xyzreader.data.ItemsContract;
 import com.example.xyzreader.data.UpdaterService;
+import com.github.florent37.picassopalette.PicassoPalette;
+import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
 
 /**
  * An activity representing a list of Articles. This activity has different presentations for
@@ -34,22 +47,28 @@ import com.example.xyzreader.data.UpdaterService;
 public class ArticleListActivity extends ActionBarActivity implements
         LoaderManager.LoaderCallbacks<Cursor> {
 
-    private Toolbar mToolbar;
-    private SwipeRefreshLayout mSwipeRefreshLayout;
-    private RecyclerView mRecyclerView;
+    @BindView(R.id.recycler_view)
+    RecyclerView mRecyclerView;
+    @BindView(R.id.swipe_refresh_layout)
+    SwipeRefreshLayout mSwipeRefreshLayout;
+    @BindView(R.id.toolbar)
+    Toolbar mToolbar;
+    RecyclerView.LayoutManager sglm;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_article_list);
+        ButterKnife.bind(this);
 
-        mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            int columnCount = getResources().getInteger(R.integer.list_column_count);
+            sglm = new StaggeredGridLayoutManager(columnCount, StaggeredGridLayoutManager.VERTICAL);
 
-
-        final View toolbarContainerView = findViewById(R.id.toolbar_container);
-
-        mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_refresh_layout);
-
+        } else {
+            sglm = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
+        }
         mRecyclerView = (RecyclerView) findViewById(R.id.recycler_view);
         getLoaderManager().initLoader(0, null, this);
 
@@ -101,9 +120,6 @@ public class ArticleListActivity extends ActionBarActivity implements
         Adapter adapter = new Adapter(cursor);
         adapter.setHasStableIds(true);
         mRecyclerView.setAdapter(adapter);
-        int columnCount = getResources().getInteger(R.integer.list_column_count);
-        StaggeredGridLayoutManager sglm =
-                new StaggeredGridLayoutManager(columnCount, StaggeredGridLayoutManager.VERTICAL);
         mRecyclerView.setLayoutManager(sglm);
     }
 
@@ -113,6 +129,7 @@ public class ArticleListActivity extends ActionBarActivity implements
     }
 
     private class Adapter extends RecyclerView.Adapter<ViewHolder> {
+
         private Cursor mCursor;
 
         public Adapter(Cursor cursor) {
@@ -142,18 +159,7 @@ public class ArticleListActivity extends ActionBarActivity implements
         @Override
         public void onBindViewHolder(ViewHolder holder, int position) {
             mCursor.moveToPosition(position);
-            holder.titleView.setText(mCursor.getString(ArticleLoader.Query.TITLE));
-            holder.subtitleView.setText(
-                    DateUtils.getRelativeTimeSpanString(
-                            mCursor.getLong(ArticleLoader.Query.PUBLISHED_DATE),
-                            System.currentTimeMillis(), DateUtils.HOUR_IN_MILLIS,
-                            DateUtils.FORMAT_ABBREV_ALL).toString()
-                            + " by "
-                            + mCursor.getString(ArticleLoader.Query.AUTHOR));
-            holder.thumbnailView.setImageUrl(
-                    mCursor.getString(ArticleLoader.Query.THUMB_URL),
-                    ImageLoaderHelper.getInstance(ArticleListActivity.this).getImageLoader());
-            holder.thumbnailView.setAspectRatio(mCursor.getFloat(ArticleLoader.Query.ASPECT_RATIO));
+            holder.bind(position , mCursor);
         }
 
         @Override
@@ -162,16 +168,49 @@ public class ArticleListActivity extends ActionBarActivity implements
         }
     }
 
-    public static class ViewHolder extends RecyclerView.ViewHolder {
-        public DynamicHeightNetworkImageView thumbnailView;
-        public TextView titleView;
-        public TextView subtitleView;
+    public class ViewHolder extends RecyclerView.ViewHolder {
+        @BindView(R.id.image)
+        DynamicHeightNetworkImageView thumbnailView;
+        @BindView(R.id.title)
+        TextView titleView;
+        @BindView(R.id.subtitle)
+        TextView subtitleView;
+        @BindView(R.id.footer)
+        LinearLayout footer;
+        private long mLastItemId;
+
 
         public ViewHolder(View view) {
             super(view);
-            thumbnailView = (DynamicHeightNetworkImageView) view.findViewById(R.id.thumbnail);
-            titleView = (TextView) view.findViewById(R.id.article_title);
-            subtitleView = (TextView) view.findViewById(R.id.article_subtitle);
+            ButterKnife.bind(this, view);
         }
+
+        public void bind(final int position, Cursor mCursor) {
+            mCursor.moveToPosition(position);
+
+            titleView.setText(mCursor.getString(ArticleLoader.Query.TITLE));
+            subtitleView.setText(
+                    DateUtils.getRelativeTimeSpanString(
+                            mCursor.getLong(ArticleLoader.Query.PUBLISHED_DATE),
+                            System.currentTimeMillis(), DateUtils.HOUR_IN_MILLIS,
+                            DateUtils.FORMAT_ABBREV_ALL).toString()
+                            + " by "
+                            + mCursor.getString(ArticleLoader.Query.AUTHOR));
+
+            thumbnailView.setAspectRatio(mCursor.getFloat(ArticleLoader.Query.ASPECT_RATIO));
+            String imageUrl = mCursor.getString(ArticleLoader.Query.THUMB_URL);
+
+            Picasso.with(ArticleListActivity.this).load(imageUrl).into(thumbnailView,
+                    PicassoPalette.with(imageUrl , thumbnailView)
+                            .use(PicassoPalette.Profile.VIBRANT)
+                            .intoBackground(footer, PicassoPalette.Swatch.RGB)
+                            .intoTextColor(titleView, PicassoPalette.Swatch.TITLE_TEXT_COLOR)
+                    .intoTextColor(subtitleView , PicassoPalette.Swatch.TITLE_TEXT_COLOR)
+            );
+        }
+
+
+
     }
 }
+

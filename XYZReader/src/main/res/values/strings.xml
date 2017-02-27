@@ -8,5 +8,9 @@
     <string name="action_share">Share</string>
 
     <string name="up">Up</string>
+    <string name="title_activity_feed_list">FeedListActivity</string>
+    <string name="title_activity_feed_detail">FeedDetailActivity</string>
+    <string name="article_thumbnail">content Image</string>
+    <string name="toolbarimage">Toolbar Image</string>
 
 </resources>

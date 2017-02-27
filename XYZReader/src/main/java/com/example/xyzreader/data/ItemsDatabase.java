@@ -3,6 +3,7 @@ package com.example.xyzreader.data;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.widget.RelativeLayout;
 
 import static com.example.xyzreader.data.ItemsProvider.Tables;
 
