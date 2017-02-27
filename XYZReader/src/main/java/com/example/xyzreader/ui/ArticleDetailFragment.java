@@ -175,14 +175,24 @@ public class ArticleDetailFragment extends Fragment implements
                             + mCursor.getString(ArticleLoader.Query.AUTHOR)
                             + "</font>"));
             articleBody.setText(Html.fromHtml(mCursor.getString(ArticleLoader.Query.BODY)));
-
-            Picasso.with(getActivity()).load(mCursor.getString(ArticleLoader.Query.PHOTO_URL)).into(image,
-                    PicassoPalette.with(mCursor.getString(ArticleLoader.Query.PHOTO_URL) , image)
+            final CollapsingToolbarLayout.LayoutParams params = new CollapsingToolbarLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT , ViewGroup.LayoutParams.WRAP_CONTENT);
+            final String imagePath = mCursor.getString(ArticleLoader.Query.PHOTO_URL);
+            Picasso.with(getActivity()).load(imagePath).into(image,  new com.squareup.picasso.Callback() {
+                @Override
+                public void onSuccess() {
+                    image.setLayoutParams(params);
+                    PicassoPalette.with(imagePath , image)
                             .use(PicassoPalette.Profile.VIBRANT)
                             .intoBackground(metaBar, PicassoPalette.Swatch.RGB)
                             .intoTextColor(articleTitle, PicassoPalette.Swatch.TITLE_TEXT_COLOR)
-                            .intoTextColor(articleByline , PicassoPalette.Swatch.TITLE_TEXT_COLOR)
-            );
+                            .intoTextColor(articleByline , PicassoPalette.Swatch.TITLE_TEXT_COLOR);
+                }
+
+                @Override
+                public void onError() {
+
+                }
+            });
         } else {
             mRootView.setVisibility(View.GONE);
             articleTitle.setText("N/A");
