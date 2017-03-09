@@ -15,6 +15,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ShareCompat;
 import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.Html;
 import android.text.format.DateUtils;
@@ -42,7 +43,8 @@ import butterknife.ButterKnife;
  * tablets) or a {@link ArticleDetailActivity} on handsets.
  */
 public class ArticleDetailFragment extends Fragment implements
-        LoaderManager.LoaderCallbacks<Cursor> {
+        LoaderManager.LoaderCallbacks<Cursor>,
+        AppBarLayout.OnOffsetChangedListener {
     private static final String TAG = "ArticleDetailFragment";
 
     public static final String ARG_ITEM_ID = "item_id";
@@ -63,12 +65,14 @@ public class ArticleDetailFragment extends Fragment implements
     CoordinatorLayout mainContent;
     @BindView(R.id.image)
     ImageView image;
-//    @BindView(R.id.article_title)
-//    TextView articleTitle;
-//    @BindView(R.id.article_byline)
-//    TextView articleByline;
-//    @BindView(R.id.meta_bar)
-//    LinearLayout metaBar;
+    @BindView(R.id.article_title)
+    TextView articleTitle;
+    @BindView(R.id.article_byline)
+    TextView articleByline;
+    @BindView(R.id.meta_bar)
+    HeaderLayout metaBar;
+    @BindView(R.id.float_header_view)
+    HeaderLayout floatHeaderView;
 
     private Cursor mCursor;
     private long mItemId;
@@ -81,6 +85,7 @@ public class ArticleDetailFragment extends Fragment implements
     private int mScrollY;
     private boolean mIsCard = false;
     private int mStatusBarFullOpacityBottom;
+    private boolean isHideToolbarView = false;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -111,8 +116,6 @@ public class ArticleDetailFragment extends Fragment implements
         setHasOptionsMenu(true);
 
 
-
-
     }
 
 
@@ -136,6 +139,7 @@ public class ArticleDetailFragment extends Fragment implements
         ((AppCompatActivity) getActivity()).setSupportActionBar(toolbar);
 
         //bindViews();
+
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -149,30 +153,40 @@ public class ArticleDetailFragment extends Fragment implements
     }
 
 
+
+
     private void bindViews() {
         if (mRootView == null) {
             return;
         }
+        ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-       // articleByline.setMovementMethod(new LinkMovementMethod());
+
+        appbar.addOnOffsetChangedListener(this);
+        // articleByline.setMovementMethod(new LinkMovementMethod());
         articleBody.setTypeface(Typeface.createFromAsset(getResources().getAssets(), "Rosario-Regular.ttf"));
 
         if (mCursor != null) {
             mRootView.setAlpha(0);
             mRootView.setVisibility(View.VISIBLE);
             mRootView.animate().alpha(1);
-            ((AppCompatActivity)getActivity()).getSupportActionBar().setTitle(mCursor.getString(ArticleLoader.Query.TITLE));
-            collapsingToolbar.setTitle(mCursor.getString(ArticleLoader.Query.TITLE));
-
-            //articleTitle.setText(mCursor.getString(ArticleLoader.Query.TITLE));
-//            articleByline.setText(Html.fromHtml(
-//                    DateUtils.getRelativeTimeSpanString(
-//                            mCursor.getLong(ArticleLoader.Query.PUBLISHED_DATE),
-//                            System.currentTimeMillis(), DateUtils.HOUR_IN_MILLIS,
-//                            DateUtils.FORMAT_ABBREV_ALL).toString()
-//                            + " by <font color='#ffffff'>"
-//                            + mCursor.getString(ArticleLoader.Query.AUTHOR)
-//                            + "</font>"));
+            collapsingToolbar.setTitle("");
+            metaBar.bindTo(mCursor.getString(ArticleLoader.Query.TITLE), Html.fromHtml(
+                    DateUtils.getRelativeTimeSpanString(
+                            mCursor.getLong(ArticleLoader.Query.PUBLISHED_DATE),
+                            System.currentTimeMillis(), DateUtils.HOUR_IN_MILLIS,
+                            DateUtils.FORMAT_ABBREV_ALL).toString()
+                            + " by <font color='#ffffff'>"
+                            + mCursor.getString(ArticleLoader.Query.AUTHOR)
+                            + "</font>").toString());
+            floatHeaderView.bindTo(mCursor.getString(ArticleLoader.Query.TITLE), Html.fromHtml(
+                    DateUtils.getRelativeTimeSpanString(
+                            mCursor.getLong(ArticleLoader.Query.PUBLISHED_DATE),
+                            System.currentTimeMillis(), DateUtils.HOUR_IN_MILLIS,
+                            DateUtils.FORMAT_ABBREV_ALL).toString()
+                            + " by <font color='#ffffff'>"
+                            + mCursor.getString(ArticleLoader.Query.AUTHOR)
+                            + "</font>").toString());
             articleBody.setText(Html.fromHtml(mCursor.getString(ArticleLoader.Query.BODY)));
             final CollapsingToolbarLayout.LayoutParams params = new CollapsingToolbarLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
             final String imagePath = mCursor.getString(ArticleLoader.Query.PHOTO_URL);
@@ -183,8 +197,8 @@ public class ArticleDetailFragment extends Fragment implements
                     PicassoPalette.with(imagePath, image)
                             .use(PicassoPalette.Profile.VIBRANT)
                             .intoBackground(toolbar, PicassoPalette.Swatch.RGB);
-                            //.intoTextColor(articleTitle, PicassoPalette.Swatch.TITLE_TEXT_COLOR)
-                            //.intoTextColor(articleByline, PicassoPalette.Swatch.TITLE_TEXT_COLOR);
+                    //.intoTextColor(articleTitle, PicassoPalette.Swatch.TITLE_TEXT_COLOR)
+                    //.intoTextColor(articleByline, PicassoPalette.Swatch.TITLE_TEXT_COLOR);
                 }
 
                 @Override
@@ -194,11 +208,6 @@ public class ArticleDetailFragment extends Fragment implements
             });
         } else {
             mRootView.setVisibility(View.GONE);
-           // ((AppCompatActivity)getActivity()).getSupportActionBar().setTitle(mCursor.getString(ArticleLoader.Query.TITLE));
-           //   collapsingToolbar.setTitle(mCursor.getString(ArticleLoader.Query.TITLE));
-
-//            articleTitle.setText("N/A");
-//            articleByline.setText("N/A");
             articleBody.setText("N/A");
         }
     }
@@ -233,5 +242,20 @@ public class ArticleDetailFragment extends Fragment implements
         bindViews();
     }
 
+    @Override
+    public void onOffsetChanged(AppBarLayout appBarLayout, int offset) {
+
+        int maxScroll = appBarLayout.getTotalScrollRange();
+        float percentage = (float) Math.abs(offset) / (float) maxScroll;
+
+        if (percentage == 1f && isHideToolbarView) {
+            metaBar.setVisibility(View.VISIBLE);
+            isHideToolbarView = !isHideToolbarView;
+
+        } else if (percentage < 1f && !isHideToolbarView) {
+            metaBar.setVisibility(View.GONE);
+            isHideToolbarView = !isHideToolbarView;
+        }
+    }
 
 }

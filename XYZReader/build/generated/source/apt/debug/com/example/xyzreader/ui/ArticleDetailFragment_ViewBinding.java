@@ -33,6 +33,10 @@ public class ArticleDetailFragment_ViewBinding<T extends ArticleDetailFragment> 
     target.fab = Utils.findRequiredViewAsType(source, R.id.fab, "field 'fab'", FloatingActionButton.class);
     target.mainContent = Utils.findRequiredViewAsType(source, R.id.main_content, "field 'mainContent'", CoordinatorLayout.class);
     target.image = Utils.findRequiredViewAsType(source, R.id.image, "field 'image'", ImageView.class);
+    target.articleTitle = Utils.findRequiredViewAsType(source, R.id.article_title, "field 'articleTitle'", TextView.class);
+    target.articleByline = Utils.findRequiredViewAsType(source, R.id.article_byline, "field 'articleByline'", TextView.class);
+    target.metaBar = Utils.findRequiredViewAsType(source, R.id.meta_bar, "field 'metaBar'", HeaderLayout.class);
+    target.floatHeaderView = Utils.findRequiredViewAsType(source, R.id.float_header_view, "field 'floatHeaderView'", HeaderLayout.class);
   }
 
   @Override
@@ -49,6 +53,10 @@ public class ArticleDetailFragment_ViewBinding<T extends ArticleDetailFragment> 
     target.fab = null;
     target.mainContent = null;
     target.image = null;
+    target.articleTitle = null;
+    target.articleByline = null;
+    target.metaBar = null;
+    target.floatHeaderView = null;
 
     this.target = null;
   }
