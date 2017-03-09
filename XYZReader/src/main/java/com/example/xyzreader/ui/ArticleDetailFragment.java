@@ -5,7 +5,6 @@ import android.app.LoaderManager;
 import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
-import android.graphics.Bitmap;
 import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
@@ -16,7 +15,6 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ShareCompat;
 import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.graphics.Palette;
 import android.support.v7.widget.Toolbar;
 import android.text.Html;
 import android.text.format.DateUtils;
@@ -29,11 +27,10 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.ImageLoader;
 import com.example.xyzreader.R;
 import com.example.xyzreader.data.ArticleLoader;
 import com.github.florent37.picassopalette.PicassoPalette;
+import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
 import butterknife.BindView;
@@ -54,12 +51,6 @@ public class ArticleDetailFragment extends Fragment implements
     Toolbar toolbar;
     @BindView(R.id.collapsing_toolbar)
     CollapsingToolbarLayout collapsingToolbar;
-    @BindView(R.id.article_title)
-    TextView articleTitle;
-    @BindView(R.id.article_byline)
-    TextView articleByline;
-    @BindView(R.id.meta_bar)
-    LinearLayout metaBar;
     @BindView(R.id.appbar)
     AppBarLayout appbar;
     @BindView(R.id.article_body)
@@ -72,6 +63,12 @@ public class ArticleDetailFragment extends Fragment implements
     CoordinatorLayout mainContent;
     @BindView(R.id.image)
     ImageView image;
+//    @BindView(R.id.article_title)
+//    TextView articleTitle;
+//    @BindView(R.id.article_byline)
+//    TextView articleByline;
+//    @BindView(R.id.meta_bar)
+//    LinearLayout metaBar;
 
     private Cursor mCursor;
     private long mItemId;
@@ -114,6 +111,8 @@ public class ArticleDetailFragment extends Fragment implements
         setHasOptionsMenu(true);
 
 
+
+
     }
 
 
@@ -133,13 +132,10 @@ public class ArticleDetailFragment extends Fragment implements
                              Bundle savedInstanceState) {
         mRootView = inflater.inflate(R.layout.fragment_article_detail2, container, false);
 
-
-
-
         ButterKnife.bind(this, mRootView);
         ((AppCompatActivity) getActivity()).setSupportActionBar(toolbar);
-        ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        bindViews();
+
+        //bindViews();
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -158,34 +154,37 @@ public class ArticleDetailFragment extends Fragment implements
             return;
         }
 
-        articleByline.setMovementMethod(new LinkMovementMethod());
+       // articleByline.setMovementMethod(new LinkMovementMethod());
         articleBody.setTypeface(Typeface.createFromAsset(getResources().getAssets(), "Rosario-Regular.ttf"));
 
         if (mCursor != null) {
             mRootView.setAlpha(0);
             mRootView.setVisibility(View.VISIBLE);
             mRootView.animate().alpha(1);
-            articleTitle.setText(mCursor.getString(ArticleLoader.Query.TITLE));
-            articleByline.setText(Html.fromHtml(
-                    DateUtils.getRelativeTimeSpanString(
-                            mCursor.getLong(ArticleLoader.Query.PUBLISHED_DATE),
-                            System.currentTimeMillis(), DateUtils.HOUR_IN_MILLIS,
-                            DateUtils.FORMAT_ABBREV_ALL).toString()
-                            + " by <font color='#ffffff'>"
-                            + mCursor.getString(ArticleLoader.Query.AUTHOR)
-                            + "</font>"));
+            ((AppCompatActivity)getActivity()).getSupportActionBar().setTitle(mCursor.getString(ArticleLoader.Query.TITLE));
+            collapsingToolbar.setTitle(mCursor.getString(ArticleLoader.Query.TITLE));
+
+            //articleTitle.setText(mCursor.getString(ArticleLoader.Query.TITLE));
+//            articleByline.setText(Html.fromHtml(
+//                    DateUtils.getRelativeTimeSpanString(
+//                            mCursor.getLong(ArticleLoader.Query.PUBLISHED_DATE),
+//                            System.currentTimeMillis(), DateUtils.HOUR_IN_MILLIS,
+//                            DateUtils.FORMAT_ABBREV_ALL).toString()
+//                            + " by <font color='#ffffff'>"
+//                            + mCursor.getString(ArticleLoader.Query.AUTHOR)
+//                            + "</font>"));
             articleBody.setText(Html.fromHtml(mCursor.getString(ArticleLoader.Query.BODY)));
-            final CollapsingToolbarLayout.LayoutParams params = new CollapsingToolbarLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT , ViewGroup.LayoutParams.WRAP_CONTENT);
+            final CollapsingToolbarLayout.LayoutParams params = new CollapsingToolbarLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
             final String imagePath = mCursor.getString(ArticleLoader.Query.PHOTO_URL);
-            Picasso.with(getActivity()).load(imagePath).into(image,  new com.squareup.picasso.Callback() {
+            Picasso.with(getActivity()).load(imagePath).into(image, new Callback() {
                 @Override
                 public void onSuccess() {
                     image.setLayoutParams(params);
-                    PicassoPalette.with(imagePath , image)
+                    PicassoPalette.with(imagePath, image)
                             .use(PicassoPalette.Profile.VIBRANT)
-                            .intoBackground(metaBar, PicassoPalette.Swatch.RGB)
-                            .intoTextColor(articleTitle, PicassoPalette.Swatch.TITLE_TEXT_COLOR)
-                            .intoTextColor(articleByline , PicassoPalette.Swatch.TITLE_TEXT_COLOR);
+                            .intoBackground(toolbar, PicassoPalette.Swatch.RGB);
+                            //.intoTextColor(articleTitle, PicassoPalette.Swatch.TITLE_TEXT_COLOR)
+                            //.intoTextColor(articleByline, PicassoPalette.Swatch.TITLE_TEXT_COLOR);
                 }
 
                 @Override
@@ -195,8 +194,11 @@ public class ArticleDetailFragment extends Fragment implements
             });
         } else {
             mRootView.setVisibility(View.GONE);
-            articleTitle.setText("N/A");
-            articleByline.setText("N/A");
+           // ((AppCompatActivity)getActivity()).getSupportActionBar().setTitle(mCursor.getString(ArticleLoader.Query.TITLE));
+           //   collapsingToolbar.setTitle(mCursor.getString(ArticleLoader.Query.TITLE));
+
+//            articleTitle.setText("N/A");
+//            articleByline.setText("N/A");
             articleBody.setText("N/A");
         }
     }
