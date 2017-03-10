@@ -41,6 +41,7 @@
                     android:layout_height="wrap_content"
                     android:layout_width="match_parent"
                     android:layout_marginRight="@dimen/header_view_end_margin_right"
+                    android:layout_marginEnd="@dimen/header_view_end_margin_right"
                     android:visibility="gone"
                     />
             </android.support.v7.widget.Toolbar>

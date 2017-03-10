@@ -1,11 +1,11 @@
 [
     {
-        "merged": "/Users/abhi/AndroidStudioProjects/xyzreader/XYZReader/build/intermediates/res/merged/debug/layout/abc_screen_simple.xml",
-        "source": "/Users/abhi/AndroidStudioProjects/xyzreader/XYZReader/build/intermediates/exploded-aar/com.android.support/appcompat-v7/22.2.1/res/layout/abc_screen_simple.xml"
-    },
-    {
         "merged": "/Users/abhi/AndroidStudioProjects/xyzreader/XYZReader/build/intermediates/res/merged/debug/layout/select_dialog_singlechoice_material.xml",
         "source": "/Users/abhi/AndroidStudioProjects/xyzreader/XYZReader/build/intermediates/exploded-aar/com.android.support/appcompat-v7/22.2.1/res/layout/select_dialog_singlechoice_material.xml"
+    },
+    {
+        "merged": "/Users/abhi/AndroidStudioProjects/xyzreader/XYZReader/build/intermediates/res/merged/debug/layout/abc_screen_simple.xml",
+        "source": "/Users/abhi/AndroidStudioProjects/xyzreader/XYZReader/build/intermediates/exploded-aar/com.android.support/appcompat-v7/22.2.1/res/layout/abc_screen_simple.xml"
     },
     {
         "merged": "/Users/abhi/AndroidStudioProjects/xyzreader/XYZReader/build/intermediates/res/merged/debug/layout/abc_list_menu_item_icon.xml",
@@ -16,12 +16,12 @@
         "source": "/Users/abhi/AndroidStudioProjects/xyzreader/XYZReader/build/intermediates/exploded-aar/com.android.support/appcompat-v7/22.2.1/res/layout/abc_action_bar_up_container.xml"
     },
     {
-        "merged": "/Users/abhi/AndroidStudioProjects/xyzreader/XYZReader/build/intermediates/res/merged/debug/layout/notification_template_part_chronometer.xml",
-        "source": "/Users/abhi/AndroidStudioProjects/xyzreader/XYZReader/build/intermediates/exploded-aar/com.android.support/appcompat-v7/22.2.1/res/layout/notification_template_part_chronometer.xml"
-    },
-    {
         "merged": "/Users/abhi/AndroidStudioProjects/xyzreader/XYZReader/build/intermediates/res/merged/debug/layout/layout_snackbar.xml",
         "source": "/Users/abhi/AndroidStudioProjects/xyzreader/XYZReader/build/intermediates/exploded-aar/com.android.support/design/22.2.1/res/layout/layout_snackbar.xml"
+    },
+    {
+        "merged": "/Users/abhi/AndroidStudioProjects/xyzreader/XYZReader/build/intermediates/res/merged/debug/layout/notification_template_part_chronometer.xml",
+        "source": "/Users/abhi/AndroidStudioProjects/xyzreader/XYZReader/build/intermediates/exploded-aar/com.android.support/appcompat-v7/22.2.1/res/layout/notification_template_part_chronometer.xml"
     },
     {
         "merged": "/Users/abhi/AndroidStudioProjects/xyzreader/XYZReader/build/intermediates/res/merged/debug/layout/layout_snackbar_include.xml",
